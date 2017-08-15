@@ -13,6 +13,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 #endregion
 
@@ -338,47 +340,34 @@ internal class ArabicFixerTool
 	internal static bool showTashkeel = true;
 	internal static bool useHinduNumbers = false;
 	
-	
 	internal static string RemoveTashkeel(string str, out List<TashkeelLocation> tashkeelLocation)
 	{
 		tashkeelLocation = new List<TashkeelLocation>();
+		HashSet<char> tashkeels = new HashSet<char>()
+		{
+			(char)0x064B, // Tanween Fatha
+			(char)0x064C, // Tanween Thamma
+			(char)0x064D, // Tanween Kasra
+			(char)0x064E, // Fatha
+			(char)0x064F, // Thamma
+			(char)0x0650, // Kasra
+			(char)0x0651, // Shaddah
+			(char)0x0652, // Sukoon
+			(char)0x0653, // Madd
+		};
+		
 		char[] letters = str.ToCharArray();
 		for (int i = 0; i < letters.Length; i++)
-		{
-			if(letters[i] == (char)0x064B) // Tanween Fatha
-				tashkeelLocation.Add(new TashkeelLocation((char)0x064B, i));
-			else if(letters[i] == (char)0x064C) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x064C, i));
-			else if(letters[i] == (char)0x064D) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x064D, i));
-			else if(letters[i] == (char)0x064E) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x064E, i));
-			else if(letters[i] == (char)0x064F) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x064F, i));
-			else if(letters[i] == (char)0x0650) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x0650, i));
-			else if(letters[i] == (char)0x0651) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x0651, i));
-			else if(letters[i] == (char)0x0652) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x0652, i));
-			else if(letters[i] == (char)0x0653) // Shaddah
-				tashkeelLocation.Add(new TashkeelLocation((char)0x0653, i));
-
-		}
+			if(tashkeels.Contains(letters[i]))
+				tashkeelLocation.Add(new TashkeelLocation(letters[i], i));
 		
+		string[] split = str.Split(tashkeels.ToArray());
 		
-		string[] split = str.Split(new char[]{(char)0x064B,(char)0x064C,(char)0x064D,
-			(char)0x064E,(char)0x064F,(char)0x0650,
-			(char)0x0651,(char)0x0652,(char)0x0653,});
-		
-		str = "";
-		
+		StringBuilder stringWithoutTashkeel = new StringBuilder();
 		foreach(string s in split)
-		{
-			str += s;
-		}
+			stringWithoutTashkeel.Append(s);
 		
-		return str;
+		return stringWithoutTashkeel.ToString();
 	}
 	
 	internal static char[] ReturnTashkeel(char[] letters, List<TashkeelLocation> tashkeelLocation)
