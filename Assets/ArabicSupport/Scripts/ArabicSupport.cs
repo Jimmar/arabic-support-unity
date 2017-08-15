@@ -10,8 +10,10 @@
 
 
 #region Using Statements
+
 using System;
 using System.Collections.Generic;
+
 #endregion
 
 namespace ArabicSupport
@@ -243,58 +245,54 @@ internal class ArabicTable
 	/// </summary>
 	private ArabicTable()
 	{
-		mapList = new List<ArabicMapping>();
-		
-		
-		
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Hamza, (int)IsolatedArabicLetters.Hamza));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Alef, (int)IsolatedArabicLetters.Alef));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.AlefHamza, (int)IsolatedArabicLetters.AlefHamza));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.WawHamza, (int)IsolatedArabicLetters.WawHamza));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.AlefMaksoor, (int)IsolatedArabicLetters.AlefMaksoor));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.AlefMagsora, (int)IsolatedArabicLetters.AlefMaksora));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.HamzaNabera, (int)IsolatedArabicLetters.HamzaNabera));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Ba, (int)IsolatedArabicLetters.Ba));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Ta, (int)IsolatedArabicLetters.Ta));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Tha2, (int)IsolatedArabicLetters.Tha2));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Jeem, (int)IsolatedArabicLetters.Jeem));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.H7aa, (int)IsolatedArabicLetters.H7aa));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Khaa2, (int)IsolatedArabicLetters.Khaa2));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Dal, (int)IsolatedArabicLetters.Dal));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Thal, (int)IsolatedArabicLetters.Thal));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Ra2, (int)IsolatedArabicLetters.Ra2));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Zeen, (int)IsolatedArabicLetters.Zeen));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Seen, (int)IsolatedArabicLetters.Seen));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Sheen, (int)IsolatedArabicLetters.Sheen));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.S9a, (int)IsolatedArabicLetters.S9a));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Dha, (int)IsolatedArabicLetters.Dha));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.T6a, (int)IsolatedArabicLetters.T6a));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.T6ha, (int)IsolatedArabicLetters.T6ha));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Ain, (int)IsolatedArabicLetters.Ain));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Gain, (int)IsolatedArabicLetters.Gain));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Fa, (int)IsolatedArabicLetters.Fa));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Gaf, (int)IsolatedArabicLetters.Gaf));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Kaf, (int)IsolatedArabicLetters.Kaf));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Lam, (int)IsolatedArabicLetters.Lam));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Meem, (int)IsolatedArabicLetters.Meem));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Noon, (int)IsolatedArabicLetters.Noon));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Ha, (int)IsolatedArabicLetters.Ha));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Waw, (int)IsolatedArabicLetters.Waw));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.Ya, (int)IsolatedArabicLetters.Ya));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.AlefMad, (int)IsolatedArabicLetters.AlefMad));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.TaMarboota, (int)IsolatedArabicLetters.TaMarboota));		
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.PersianPe, (int)IsolatedArabicLetters.PersianPe)); 		// Persian Letters;
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.PersianChe, (int)IsolatedArabicLetters.PersianChe));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.PersianZe, (int)IsolatedArabicLetters.PersianZe));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.PersianGaf, (int)IsolatedArabicLetters.PersianGaf));
-		mapList.Add(new ArabicMapping((int)GeneralArabicLetters.PersianGaf2, (int)IsolatedArabicLetters.PersianGaf2));
-		
-		
-		
-		
+		mapList = new List<ArabicMapping>
+		{
+			new ArabicMapping((int) GeneralArabicLetters.Hamza, (int) IsolatedArabicLetters.Hamza),
+			new ArabicMapping((int) GeneralArabicLetters.Alef, (int) IsolatedArabicLetters.Alef),
+			new ArabicMapping((int) GeneralArabicLetters.AlefHamza, (int) IsolatedArabicLetters.AlefHamza),
+			new ArabicMapping((int) GeneralArabicLetters.WawHamza, (int) IsolatedArabicLetters.WawHamza),
+			new ArabicMapping((int) GeneralArabicLetters.AlefMaksoor, (int) IsolatedArabicLetters.AlefMaksoor),
+			new ArabicMapping((int) GeneralArabicLetters.AlefMagsora, (int) IsolatedArabicLetters.AlefMaksora),
+			new ArabicMapping((int) GeneralArabicLetters.HamzaNabera, (int) IsolatedArabicLetters.HamzaNabera),
+			new ArabicMapping((int) GeneralArabicLetters.Ba, (int) IsolatedArabicLetters.Ba),
+			new ArabicMapping((int) GeneralArabicLetters.Ta, (int) IsolatedArabicLetters.Ta),
+			new ArabicMapping((int) GeneralArabicLetters.Tha2, (int) IsolatedArabicLetters.Tha2),
+			new ArabicMapping((int) GeneralArabicLetters.Jeem, (int) IsolatedArabicLetters.Jeem),
+			new ArabicMapping((int) GeneralArabicLetters.H7aa, (int) IsolatedArabicLetters.H7aa),
+			new ArabicMapping((int) GeneralArabicLetters.Khaa2, (int) IsolatedArabicLetters.Khaa2),
+			new ArabicMapping((int) GeneralArabicLetters.Dal, (int) IsolatedArabicLetters.Dal),
+			new ArabicMapping((int) GeneralArabicLetters.Thal, (int) IsolatedArabicLetters.Thal),
+			new ArabicMapping((int) GeneralArabicLetters.Ra2, (int) IsolatedArabicLetters.Ra2),
+			new ArabicMapping((int) GeneralArabicLetters.Zeen, (int) IsolatedArabicLetters.Zeen),
+			new ArabicMapping((int) GeneralArabicLetters.Seen, (int) IsolatedArabicLetters.Seen),
+			new ArabicMapping((int) GeneralArabicLetters.Sheen, (int) IsolatedArabicLetters.Sheen),
+			new ArabicMapping((int) GeneralArabicLetters.S9a, (int) IsolatedArabicLetters.S9a),
+			new ArabicMapping((int) GeneralArabicLetters.Dha, (int) IsolatedArabicLetters.Dha),
+			new ArabicMapping((int) GeneralArabicLetters.T6a, (int) IsolatedArabicLetters.T6a),
+			new ArabicMapping((int) GeneralArabicLetters.T6ha, (int) IsolatedArabicLetters.T6ha),
+			new ArabicMapping((int) GeneralArabicLetters.Ain, (int) IsolatedArabicLetters.Ain),
+			new ArabicMapping((int) GeneralArabicLetters.Gain, (int) IsolatedArabicLetters.Gain),
+			new ArabicMapping((int) GeneralArabicLetters.Fa, (int) IsolatedArabicLetters.Fa),
+			new ArabicMapping((int) GeneralArabicLetters.Gaf, (int) IsolatedArabicLetters.Gaf),
+			new ArabicMapping((int) GeneralArabicLetters.Kaf, (int) IsolatedArabicLetters.Kaf),
+			new ArabicMapping((int) GeneralArabicLetters.Lam, (int) IsolatedArabicLetters.Lam),
+			new ArabicMapping((int) GeneralArabicLetters.Meem, (int) IsolatedArabicLetters.Meem),
+			new ArabicMapping((int) GeneralArabicLetters.Noon, (int) IsolatedArabicLetters.Noon),
+			new ArabicMapping((int) GeneralArabicLetters.Ha, (int) IsolatedArabicLetters.Ha),
+			new ArabicMapping((int) GeneralArabicLetters.Waw, (int) IsolatedArabicLetters.Waw),
+			new ArabicMapping((int) GeneralArabicLetters.Ya, (int) IsolatedArabicLetters.Ya),
+			new ArabicMapping((int) GeneralArabicLetters.AlefMad, (int) IsolatedArabicLetters.AlefMad),
+			new ArabicMapping((int) GeneralArabicLetters.TaMarboota, (int) IsolatedArabicLetters.TaMarboota),
+			new ArabicMapping((int) GeneralArabicLetters.PersianPe, (int) IsolatedArabicLetters.PersianPe),    // Persian Letters;
+			new ArabicMapping((int) GeneralArabicLetters.PersianChe, (int) IsolatedArabicLetters.PersianChe),
+			new ArabicMapping((int) GeneralArabicLetters.PersianZe, (int) IsolatedArabicLetters.PersianZe),
+			new ArabicMapping((int) GeneralArabicLetters.PersianGaf, (int) IsolatedArabicLetters.PersianGaf),
+			new ArabicMapping((int) GeneralArabicLetters.PersianGaf2, (int) IsolatedArabicLetters.PersianGaf2)
+		};
+
 		//for (int i = 0; i < generalArabic.Length; i++)
 		//    mapList.Add(new ArabicMapping((int)generalArabic.GetValue(i), (int)isolatedArabic.GetValue(i)));    // I
-		
+	
 		
 	}
 	
@@ -313,7 +311,6 @@ internal class ArabicTable
 	
 	internal int Convert(int toBeConverted)
 	{
-		
 		foreach (ArabicMapping arabicMap in mapList)
 			if (arabicMap.from == toBeConverted)
 		{
@@ -321,8 +318,6 @@ internal class ArabicTable
 		}
 		return toBeConverted;
 	}
-	
-	
 }
 
 
@@ -368,10 +363,9 @@ internal class ArabicFixerTool
 				tashkeelLocation.Add(new TashkeelLocation((char)0x0652, i));
 			else if(letters[i] == (char)0x0653) // Shaddah
 				tashkeelLocation.Add(new TashkeelLocation((char)0x0653, i));
-			
-			
-			
+
 		}
+		
 		
 		string[] split = str.Split(new char[]{(char)0x064B,(char)0x064C,(char)0x064D,
 			(char)0x064E,(char)0x064F,(char)0x0650,
