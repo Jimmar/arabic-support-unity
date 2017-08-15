@@ -26,9 +26,8 @@ namespace ArabicSupport
 		/// <summary>
 		/// Fix the specified string.
 		/// </summary>
-		/// <param name='str'>
-		/// String to be fixed.
-		/// </param>
+		/// <param name="str">String to be fixed.</param>
+		/// <returns>Fixed string</returns>
 		public static string Fix(string str)
 		{
 			return Fix(str, false, true);
@@ -36,34 +35,28 @@ namespace ArabicSupport
 		
 		public static string Fix(string str, bool rtl)
 		{
-			if(rtl)
-				
-			{
+			if (rtl)
 				return Fix(str);
-			}
-			else
+			string[] words = str.Split(' ');
+			string result = "";
+			string arabicToIgnore = "";
+			foreach(string word in words)
 			{
-				string[] words = str.Split(' ');
-				string result = "";
-				string arabicToIgnore = "";
-				foreach(string word in words)
+				if(char.IsLower(word.ToLower()[word.Length/2]))
 				{
-					if(char.IsLower(word.ToLower()[word.Length/2]))
-					{
-						result += Fix(arabicToIgnore) + word + " ";
-						arabicToIgnore = "";
-					}
-					else
-					{
-						arabicToIgnore += word + " ";
-						
-					}
+					result += Fix(arabicToIgnore) + word + " ";
+					arabicToIgnore = "";
 				}
-				if(arabicToIgnore != "")
-					result += Fix(arabicToIgnore);
-				
-				return result;
+				else
+				{
+					arabicToIgnore += word + " ";
+						
+				}
 			}
+			if(arabicToIgnore != "")
+				result += Fix(arabicToIgnore);
+				
+			return result;
 		}
 		
 		/// <summary>
@@ -83,43 +76,30 @@ namespace ArabicSupport
 			ArabicFixerTool.showTashkeel = showTashkeel;
 			ArabicFixerTool.useHinduNumbers =useHinduNumbers;
 			
-			if(str.Contains("\n"))
-				str = str.Replace("\n", Environment.NewLine);
-			
-			if(str.Contains(Environment.NewLine))
-			{
-				string[] stringSeparators = new string[] {Environment.NewLine};
-				string[] strSplit = str.Split(stringSeparators, StringSplitOptions.None);
-				
-				if(strSplit.Length == 0)
-					return ArabicFixerTool.FixLine(str);
-				else if(strSplit.Length == 1)
-					return ArabicFixerTool.FixLine(str);
-				else
-				{
-					string outputString = ArabicFixerTool.FixLine(strSplit[0]);
-					int iteration = 1;
-					if(strSplit.Length > 1)
-					{
-						while(iteration < strSplit.Length)
-						{
-							outputString += Environment.NewLine + ArabicFixerTool.FixLine(strSplit[iteration]);
-							iteration++;
-						}
-					}				
-					return outputString;
-				}	
-			}
-			else
-			{
+			str = str.Replace("\n", Environment.NewLine);
+
+			if (!str.Contains(Environment.NewLine)) 
 				return ArabicFixerTool.FixLine(str);
-			}
 			
+			string[] stringSeparators = new string[] {Environment.NewLine};
+			string[] strSplit = str.Split(stringSeparators, StringSplitOptions.None);
+
+			switch (strSplit.Length)
+			{
+				case 0:
+				case 1:
+					return ArabicFixerTool.FixLine(str);
+				default:
+					StringBuilder outputString = new StringBuilder(ArabicFixerTool.FixLine(strSplit[0]));
+					for (int iteration = 1; iteration < strSplit.Length; iteration++)
+						outputString.Append(Environment.NewLine + ArabicFixerTool.FixLine(strSplit[iteration]));
+
+					return outputString.ToString();
+			}
 		}
-		
 	}
-	
 }
+
 
 /// <summary>
 /// Arabic Contextual forms General - Unicode
@@ -167,7 +147,6 @@ internal enum IsolatedArabicLetters
 	PersianZe = 0xFB8A,
 	PersianGaf = 0xFB92,
 	PersianGaf2 = 0xFB8E
-	
 }
 
 /// <summary>
@@ -219,27 +198,14 @@ internal enum GeneralArabicLetters
 	
 }
 
-/// <summary>
-/// Data Structure for conversion
-/// </summary>
-internal class ArabicMapping
-{
-	public int from;
-	public int to;
-	public ArabicMapping(int from, int to)
-	{
-		this.from = from;
-		this.to = to;
-	}
-}
 
 /// <summary>
 /// Sets up and creates the conversion table 
 /// </summary>
 internal class ArabicTable
 {
-	
-	private static List<ArabicMapping> mapList;
+	//convert this into a list of dictionary
+	private static Dictionary<int, int> mapList;
 	private static ArabicTable arabicMapper;
 	
 	/// <summary>
@@ -247,55 +213,51 @@ internal class ArabicTable
 	/// </summary>
 	private ArabicTable()
 	{
-		mapList = new List<ArabicMapping>
+		mapList = new Dictionary<int,int>()
 		{
-			new ArabicMapping((int) GeneralArabicLetters.Hamza, (int) IsolatedArabicLetters.Hamza),
-			new ArabicMapping((int) GeneralArabicLetters.Alef, (int) IsolatedArabicLetters.Alef),
-			new ArabicMapping((int) GeneralArabicLetters.AlefHamza, (int) IsolatedArabicLetters.AlefHamza),
-			new ArabicMapping((int) GeneralArabicLetters.WawHamza, (int) IsolatedArabicLetters.WawHamza),
-			new ArabicMapping((int) GeneralArabicLetters.AlefMaksoor, (int) IsolatedArabicLetters.AlefMaksoor),
-			new ArabicMapping((int) GeneralArabicLetters.AlefMagsora, (int) IsolatedArabicLetters.AlefMaksora),
-			new ArabicMapping((int) GeneralArabicLetters.HamzaNabera, (int) IsolatedArabicLetters.HamzaNabera),
-			new ArabicMapping((int) GeneralArabicLetters.Ba, (int) IsolatedArabicLetters.Ba),
-			new ArabicMapping((int) GeneralArabicLetters.Ta, (int) IsolatedArabicLetters.Ta),
-			new ArabicMapping((int) GeneralArabicLetters.Tha2, (int) IsolatedArabicLetters.Tha2),
-			new ArabicMapping((int) GeneralArabicLetters.Jeem, (int) IsolatedArabicLetters.Jeem),
-			new ArabicMapping((int) GeneralArabicLetters.H7aa, (int) IsolatedArabicLetters.H7aa),
-			new ArabicMapping((int) GeneralArabicLetters.Khaa2, (int) IsolatedArabicLetters.Khaa2),
-			new ArabicMapping((int) GeneralArabicLetters.Dal, (int) IsolatedArabicLetters.Dal),
-			new ArabicMapping((int) GeneralArabicLetters.Thal, (int) IsolatedArabicLetters.Thal),
-			new ArabicMapping((int) GeneralArabicLetters.Ra2, (int) IsolatedArabicLetters.Ra2),
-			new ArabicMapping((int) GeneralArabicLetters.Zeen, (int) IsolatedArabicLetters.Zeen),
-			new ArabicMapping((int) GeneralArabicLetters.Seen, (int) IsolatedArabicLetters.Seen),
-			new ArabicMapping((int) GeneralArabicLetters.Sheen, (int) IsolatedArabicLetters.Sheen),
-			new ArabicMapping((int) GeneralArabicLetters.S9a, (int) IsolatedArabicLetters.S9a),
-			new ArabicMapping((int) GeneralArabicLetters.Dha, (int) IsolatedArabicLetters.Dha),
-			new ArabicMapping((int) GeneralArabicLetters.T6a, (int) IsolatedArabicLetters.T6a),
-			new ArabicMapping((int) GeneralArabicLetters.T6ha, (int) IsolatedArabicLetters.T6ha),
-			new ArabicMapping((int) GeneralArabicLetters.Ain, (int) IsolatedArabicLetters.Ain),
-			new ArabicMapping((int) GeneralArabicLetters.Gain, (int) IsolatedArabicLetters.Gain),
-			new ArabicMapping((int) GeneralArabicLetters.Fa, (int) IsolatedArabicLetters.Fa),
-			new ArabicMapping((int) GeneralArabicLetters.Gaf, (int) IsolatedArabicLetters.Gaf),
-			new ArabicMapping((int) GeneralArabicLetters.Kaf, (int) IsolatedArabicLetters.Kaf),
-			new ArabicMapping((int) GeneralArabicLetters.Lam, (int) IsolatedArabicLetters.Lam),
-			new ArabicMapping((int) GeneralArabicLetters.Meem, (int) IsolatedArabicLetters.Meem),
-			new ArabicMapping((int) GeneralArabicLetters.Noon, (int) IsolatedArabicLetters.Noon),
-			new ArabicMapping((int) GeneralArabicLetters.Ha, (int) IsolatedArabicLetters.Ha),
-			new ArabicMapping((int) GeneralArabicLetters.Waw, (int) IsolatedArabicLetters.Waw),
-			new ArabicMapping((int) GeneralArabicLetters.Ya, (int) IsolatedArabicLetters.Ya),
-			new ArabicMapping((int) GeneralArabicLetters.AlefMad, (int) IsolatedArabicLetters.AlefMad),
-			new ArabicMapping((int) GeneralArabicLetters.TaMarboota, (int) IsolatedArabicLetters.TaMarboota),
-			new ArabicMapping((int) GeneralArabicLetters.PersianPe, (int) IsolatedArabicLetters.PersianPe),    // Persian Letters;
-			new ArabicMapping((int) GeneralArabicLetters.PersianChe, (int) IsolatedArabicLetters.PersianChe),
-			new ArabicMapping((int) GeneralArabicLetters.PersianZe, (int) IsolatedArabicLetters.PersianZe),
-			new ArabicMapping((int) GeneralArabicLetters.PersianGaf, (int) IsolatedArabicLetters.PersianGaf),
-			new ArabicMapping((int) GeneralArabicLetters.PersianGaf2, (int) IsolatedArabicLetters.PersianGaf2)
+			{(int) GeneralArabicLetters.Hamza, (int) IsolatedArabicLetters.Hamza},
+			{(int) GeneralArabicLetters.Alef, (int) IsolatedArabicLetters.Alef},
+			{(int) GeneralArabicLetters.AlefHamza, (int) IsolatedArabicLetters.AlefHamza},
+			{(int) GeneralArabicLetters.WawHamza, (int) IsolatedArabicLetters.WawHamza},
+			{(int) GeneralArabicLetters.AlefMaksoor, (int) IsolatedArabicLetters.AlefMaksoor},
+			{(int) GeneralArabicLetters.AlefMagsora, (int) IsolatedArabicLetters.AlefMaksora},
+			{(int) GeneralArabicLetters.HamzaNabera, (int) IsolatedArabicLetters.HamzaNabera},
+			{(int) GeneralArabicLetters.Ba, (int) IsolatedArabicLetters.Ba},
+			{(int) GeneralArabicLetters.Ta, (int) IsolatedArabicLetters.Ta},
+			{(int) GeneralArabicLetters.Tha2, (int) IsolatedArabicLetters.Tha2},
+			{(int) GeneralArabicLetters.Jeem, (int) IsolatedArabicLetters.Jeem},
+			{(int) GeneralArabicLetters.H7aa, (int) IsolatedArabicLetters.H7aa},
+			{(int) GeneralArabicLetters.Khaa2, (int) IsolatedArabicLetters.Khaa2},
+			{(int) GeneralArabicLetters.Dal, (int) IsolatedArabicLetters.Dal},
+			{(int) GeneralArabicLetters.Thal, (int) IsolatedArabicLetters.Thal},
+			{(int) GeneralArabicLetters.Ra2, (int) IsolatedArabicLetters.Ra2},
+			{(int) GeneralArabicLetters.Zeen, (int) IsolatedArabicLetters.Zeen},
+			{(int) GeneralArabicLetters.Seen, (int) IsolatedArabicLetters.Seen},
+			{(int) GeneralArabicLetters.Sheen, (int) IsolatedArabicLetters.Sheen},
+			{(int) GeneralArabicLetters.S9a, (int) IsolatedArabicLetters.S9a},
+			{(int) GeneralArabicLetters.Dha, (int) IsolatedArabicLetters.Dha},
+			{(int) GeneralArabicLetters.T6a, (int) IsolatedArabicLetters.T6a},
+			{(int) GeneralArabicLetters.T6ha, (int) IsolatedArabicLetters.T6ha},
+			{(int) GeneralArabicLetters.Ain, (int) IsolatedArabicLetters.Ain},
+			{(int) GeneralArabicLetters.Gain, (int) IsolatedArabicLetters.Gain},
+			{(int) GeneralArabicLetters.Fa, (int) IsolatedArabicLetters.Fa},
+			{(int) GeneralArabicLetters.Gaf, (int) IsolatedArabicLetters.Gaf},
+			{(int) GeneralArabicLetters.Kaf, (int) IsolatedArabicLetters.Kaf},
+			{(int) GeneralArabicLetters.Lam, (int) IsolatedArabicLetters.Lam},
+			{(int) GeneralArabicLetters.Meem, (int) IsolatedArabicLetters.Meem},
+			{(int) GeneralArabicLetters.Noon, (int) IsolatedArabicLetters.Noon},
+			{(int) GeneralArabicLetters.Ha, (int) IsolatedArabicLetters.Ha},
+			{(int) GeneralArabicLetters.Waw, (int) IsolatedArabicLetters.Waw},
+			{(int) GeneralArabicLetters.Ya, (int) IsolatedArabicLetters.Ya},
+			{(int) GeneralArabicLetters.AlefMad, (int) IsolatedArabicLetters.AlefMad},
+			{(int) GeneralArabicLetters.TaMarboota, (int) IsolatedArabicLetters.TaMarboota},
+			{(int) GeneralArabicLetters.PersianPe, (int) IsolatedArabicLetters.PersianPe},    // Persian Letters;
+			{(int) GeneralArabicLetters.PersianChe, (int) IsolatedArabicLetters.PersianChe},
+			{(int) GeneralArabicLetters.PersianZe, (int) IsolatedArabicLetters.PersianZe},
+			{(int) GeneralArabicLetters.PersianGaf, (int) IsolatedArabicLetters.PersianGaf},
+			{(int) GeneralArabicLetters.PersianGaf2, (int) IsolatedArabicLetters.PersianGaf2}
 		};
 
-		//for (int i = 0; i < generalArabic.Length; i++)
-		//    mapList.Add(new ArabicMapping((int)generalArabic.GetValue(i), (int)isolatedArabic.GetValue(i)));    // I
-	
-		
 	}
 	
 	/// <summary>
@@ -303,26 +265,17 @@ internal class ArabicTable
 	/// </summary>
 	internal static ArabicTable ArabicMapper
 	{
-		get
-		{
-			if (arabicMapper == null)
-				arabicMapper = new ArabicTable();
-			return arabicMapper;
-		}
+		get { return arabicMapper ?? (arabicMapper = new ArabicTable()); }
 	}
-	
+
 	internal int Convert(int toBeConverted)
 	{
-		foreach (ArabicMapping arabicMap in mapList)
-			if (arabicMap.from == toBeConverted)
-		{
-			return arabicMap.to;
-		}
-		return toBeConverted;
+		return mapList.ContainsKey(toBeConverted) ? mapList[toBeConverted] : toBeConverted;
 	}
 }
 
 
+//TODO remove this and convert it into a dictionary
 internal class TashkeelLocation
 {
 	public char tashkeel;
@@ -338,11 +291,12 @@ internal class TashkeelLocation
 internal class ArabicFixerTool
 {
 	internal static bool showTashkeel = true;
-	internal static bool useHinduNumbers = false;
+	internal static bool useHinduNumbers;
 	
 	internal static string RemoveTashkeel(string str, out List<TashkeelLocation> tashkeelLocation)
 	{
 		tashkeelLocation = new List<TashkeelLocation>();
+		
 		HashSet<char> tashkeels = new HashSet<char>()
 		{
 			(char)0x064B, // Tanween Fatha
@@ -475,7 +429,7 @@ internal class ArabicFixerTool
             //strOut = String.Format(@"\x{0:x4}", (ushort)lettersFinal[i]);
             //UnityEngine.Debug.Log(strOut);
 
-            test += Convert.ToString((int)lettersOrigin[i], 16) + " ";
+            test += Convert.ToString(lettersOrigin[i], 16) + " ";
 			if (skip)
 				i++;
 			
