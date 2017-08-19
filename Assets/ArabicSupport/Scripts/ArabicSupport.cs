@@ -270,7 +270,8 @@ internal class ArabicTable
 
 	internal int Convert(int toBeConverted)
 	{
-		return mapList.ContainsKey(toBeConverted) ? mapList[toBeConverted] : toBeConverted;
+		int value;
+		return mapList.TryGetValue(toBeConverted, out value) ? value : toBeConverted;
 	}
 }
 
@@ -349,7 +350,7 @@ internal class ArabicFixerTool
 	/// <returns>Converted string. Example: "aa aaa A" without the spaces.</returns>
 	internal static string FixLine(string str)
 	{
-		string test = "";
+//		string test = "";
 		
 		Dictionary<int, char> tashkeelLocation;
 		
@@ -357,57 +358,36 @@ internal class ArabicFixerTool
 		
 		char[] lettersOrigin = originString.ToCharArray();
 		char[] lettersFinal = originString.ToCharArray();
-		
 
+		lettersOrigin = lettersOrigin.Select(t => (char) ArabicTable.ArabicMapper.Convert(t)).ToArray();
 		
-		for (int i = 0; i < lettersOrigin.Length; i++)
+		//dictionary to convert the alefs that come after lam into proper alef-lam
+		Dictionary<char, char> alefs = new Dictionary<char, char>()
 		{
-			lettersOrigin[i] = (char)ArabicTable.ArabicMapper.Convert(lettersOrigin[i]);
-		}
+			{(char) IsolatedArabicLetters.AlefMaksoor,	(char) 0xFEF7},
+			{(char) IsolatedArabicLetters.Alef,			(char) 0xFEF9},
+			{(char) IsolatedArabicLetters.AlefHamza, 	(char) 0xFEF5},
+			{(char) IsolatedArabicLetters.AlefMad, 		(char) 0xFEF3},
+		};
 		
 		for (int i = 0; i < lettersOrigin.Length; i++)
 		{
 			bool skip = false;
 
-			
-			//lettersOrigin[i] = (char)ArabicTable.ArabicMapper.Convert(lettersOrigin[i]);
-
-
 			// For special Lam Letter connections.
 			if (lettersOrigin[i] == (char)IsolatedArabicLetters.Lam)
-			{
-				
+			{		
 				if (i < lettersOrigin.Length - 1)
 				{
-					//lettersOrigin[i + 1] = (char)ArabicTable.ArabicMapper.Convert(lettersOrigin[i + 1]);
-					if ((lettersOrigin[i + 1] == (char)IsolatedArabicLetters.AlefMaksoor))
+					char value;
+					if (alefs.TryGetValue(lettersOrigin[i + 1], out value))
 					{
-						lettersOrigin[i] = (char)0xFEF7;
-						lettersFinal[i + 1] = (char)0xFFFF;
-						skip = true;
-					}
-					else if ((lettersOrigin[i + 1] == (char)IsolatedArabicLetters.Alef))
-					{
-						lettersOrigin[i] = (char)0xFEF9;
-						lettersFinal[i + 1] = (char)0xFFFF;
-						skip = true;
-					}
-					else if ((lettersOrigin[i + 1] == (char)IsolatedArabicLetters.AlefHamza))
-					{
-						lettersOrigin[i] = (char)0xFEF5;
-						lettersFinal[i + 1] = (char)0xFFFF;
-						skip = true;
-					}
-					else if ((lettersOrigin[i + 1] == (char)IsolatedArabicLetters.AlefMad))
-					{
-						lettersOrigin[i] = (char)0xFEF3;
-						lettersFinal[i + 1] = (char)0xFFFF;
+						lettersOrigin[i] = value;
+						lettersFinal[i + 1] = (char) 0xFFFF;
 						skip = true;
 					}
 				}
-				
 			}
-			
 			
 			if (!IsIgnoredCharacter(lettersOrigin[i]))
 			{
@@ -425,38 +405,22 @@ internal class ArabicFixerTool
             //strOut = String.Format(@"\x{0:x4}", (ushort)lettersFinal[i]);
             //UnityEngine.Debug.Log(strOut);
 
-            test += Convert.ToString(lettersOrigin[i], 16) + " ";
+//            test += Convert.ToString(lettersOrigin[i], 16) + " ";
 			if (skip)
 				i++;
 			
 			
-			//chaning numbers to hindu
-			if(useHinduNumbers){
-				if(lettersOrigin[i] == (char)0x0030)
-					lettersFinal[i] = (char)0x0660;
-				else if(lettersOrigin[i] == (char)0x0031)
-					lettersFinal[i] = (char)0x0661;
-				else if(lettersOrigin[i] == (char)0x0032)
-					lettersFinal[i] = (char)0x0662;
-				else if(lettersOrigin[i] == (char)0x0033)
-					lettersFinal[i] = (char)0x0663;
-				else if(lettersOrigin[i] == (char)0x0034)
-					lettersFinal[i] = (char)0x0664;
-				else if(lettersOrigin[i] == (char)0x0035)
-					lettersFinal[i] = (char)0x0665;
-				else if(lettersOrigin[i] == (char)0x0036)
-					lettersFinal[i] = (char)0x0666;
-				else if(lettersOrigin[i] == (char)0x0037)
-					lettersFinal[i] = (char)0x0667;
-				else if(lettersOrigin[i] == (char)0x0038)
-					lettersFinal[i] = (char)0x0668;
-				else if(lettersOrigin[i] == (char)0x0039)
-					lettersFinal[i] = (char)0x0669;
+			//changing numbers to hindu
+			if (useHinduNumbers)
+			{
+				//checks if the character is in the range of the numbers
+				if (lettersOrigin[i] >= (char) 0x0030 && lettersOrigin[i] <= (char) 0x0039)
+				{
+					// convert the character by offsetting
+					lettersFinal[i] = (char) (lettersOrigin[i] + (0x0660 - 0x0030));
+				}
 			}
-			
 		}
-		
-		
 		
 		//Return the Tashkeel to their places.
 		if(showTashkeel)
