@@ -275,28 +275,22 @@ internal class ArabicTable
 }
 
 
-//TODO remove this and convert it into a dictionary
-internal class TashkeelLocation
-{
-	public char tashkeel;
-	public int position;
-	public TashkeelLocation(char tashkeel, int position)
-	{
-		this.tashkeel = tashkeel;
-		this.position = position;
-	}
-}
-
-
 internal class ArabicFixerTool
 {
 	internal static bool showTashkeel = true;
 	internal static bool useHinduNumbers;
 	
-	internal static string RemoveTashkeel(string str, out List<TashkeelLocation> tashkeelLocation)
+	/// <summary>
+	/// Returns a string without tashkeels and out their locations
+	/// </summary>
+	/// <param name="str">the original string</param>
+	/// <param name="tashkeelLocation">removed tashkeels and their locations</param>
+	/// <returns>string without tashkeel</returns>
+	internal static string RemoveTashkeel(string str, out Dictionary<int, char> tashkeelLocation)
 	{
-		tashkeelLocation = new List<TashkeelLocation>();
+		tashkeelLocation = new Dictionary<int, char>();
 		
+		// a hashset of all the tashkeels
 		HashSet<char> tashkeels = new HashSet<char>()
 		{
 			(char)0x064B, // Tanween Fatha
@@ -310,40 +304,42 @@ internal class ArabicFixerTool
 			(char)0x0653, // Madd
 		};
 		
-		char[] letters = str.ToCharArray();
-		for (int i = 0; i < letters.Length; i++)
-			if(tashkeels.Contains(letters[i]))
-				tashkeelLocation.Add(new TashkeelLocation(letters[i], i));
+		// looks for all occurances of any tashkeel and saves their indexes
+		for (int i = 0; i < str.Length; i++)
+			if(tashkeels.Contains(str[i]))
+				tashkeelLocation.Add(i, str[i]);
 		
+		// splits the string on tashkeels location
 		string[] split = str.Split(tashkeels.ToArray());
 		
-		StringBuilder stringWithoutTashkeel = new StringBuilder();
-		foreach(string s in split)
-			stringWithoutTashkeel.Append(s);
-		
-		return stringWithoutTashkeel.ToString();
+		//joins the splitted string to end up with a string without the tashkeels
+		string stringWithoutTashkeel = string.Join("", split).Trim();
+		return stringWithoutTashkeel;
 	}
 	
-	internal static char[] ReturnTashkeel(char[] letters, List<TashkeelLocation> tashkeelLocation)
+	/// <summary>
+	/// Returns the tashkeel back into the letters array
+	/// </summary>
+	/// <param name="letters">the character array that got stripped out from tashkeel</param>
+	/// <param name="tashkeelLocation">dictionary with the tashkeel location and their values</param>
+	/// <returns>a string with all the tashkeels added back</returns>
+	internal static string ReturnTashkeel(char[] letters, Dictionary<int, char> tashkeelLocation)
 	{
-		char[] lettersWithTashkeel = new char[letters.Length + tashkeelLocation.Count];
-		
+		StringBuilder lettersWithTashkeel = new StringBuilder(letters.Length + tashkeelLocation.Count);
 		int letterWithTashkeelTracker = 0;
-		for(int i = 0; i<letters.Length; i++)
+		foreach (char t in letters)
 		{
-			lettersWithTashkeel[letterWithTashkeelTracker] = letters[i];
+			lettersWithTashkeel.Append(t);
 			letterWithTashkeelTracker++;
-			foreach(TashkeelLocation hLocation in tashkeelLocation)
+			char value;
+			while (tashkeelLocation.TryGetValue(letterWithTashkeelTracker, out value))
 			{
-				if(hLocation.position == letterWithTashkeelTracker)
-				{
-					lettersWithTashkeel[letterWithTashkeelTracker] = hLocation.tashkeel;
-					letterWithTashkeelTracker++;
-				}
+				lettersWithTashkeel.Append(value);
+				letterWithTashkeelTracker++;
 			}
 		}
 		
-		return lettersWithTashkeel;
+		return lettersWithTashkeel.ToString();
 	}
 	
 	/// <summary>
@@ -355,7 +351,7 @@ internal class ArabicFixerTool
 	{
 		string test = "";
 		
-		List<TashkeelLocation> tashkeelLocation;
+		Dictionary<int, char> tashkeelLocation;
 		
 		string originString = RemoveTashkeel(str, out tashkeelLocation);
 		
@@ -464,7 +460,7 @@ internal class ArabicFixerTool
 		
 		//Return the Tashkeel to their places.
 		if(showTashkeel)
-			lettersFinal = ReturnTashkeel(lettersFinal, tashkeelLocation);
+			lettersFinal = ReturnTashkeel(lettersFinal, tashkeelLocation).ToCharArray();
 		
 		
 		List<char> list = new List<char>();
