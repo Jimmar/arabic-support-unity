@@ -342,6 +342,12 @@ internal class ArabicFixerTool
 		
 		return lettersWithTashkeel.ToString();
 	}
+
+	private static bool IsEnglishLetterOrNumber(char c)
+	{
+		return char.IsLower(c) || char.IsUpper(c) ||
+		       char.IsNumber(c);
+	}
 	
 	/// <summary>
 	/// Converts a string to a form in which the sting will be displayed correctly for arabic text.
@@ -350,7 +356,6 @@ internal class ArabicFixerTool
 	/// <returns>Converted string. Example: "aa aaa A" without the spaces.</returns>
 	internal static string FixLine(string str)
 	{
-//		string test = "";
 		
 		Dictionary<int, char> tashkeelLocation;
 		
@@ -374,7 +379,7 @@ internal class ArabicFixerTool
 		{
 			bool skip = false;
 
-			// For special Lam Letter connections.
+			// For special Lam Letter connections لا.
 			if (lettersOrigin[i] == (char)IsolatedArabicLetters.Lam)
 			{		
 				if (i < lettersOrigin.Length - 1)
@@ -399,13 +404,6 @@ internal class ArabicFixerTool
 					lettersFinal[i] = (char)(lettersOrigin[i] + 2);
 			}
 
-            //string strOut = String.Format(@"\x{0:x4}", (ushort)lettersOrigin[i]);
-            //UnityEngine.Debug.Log(strOut);
-
-            //strOut = String.Format(@"\x{0:x4}", (ushort)lettersFinal[i]);
-            //UnityEngine.Debug.Log(strOut);
-
-//            test += Convert.ToString(lettersOrigin[i], 16) + " ";
 			if (skip)
 				i++;
 			
@@ -427,104 +425,78 @@ internal class ArabicFixerTool
 			lettersFinal = ReturnTashkeel(lettersFinal, tashkeelLocation).ToCharArray();
 		
 		
-		List<char> list = new List<char>();
+		StringBuilder list = new StringBuilder();
 		
-		List<char> numberList = new List<char>();
+		StringBuilder numberList = new StringBuilder();
 		
+		Dictionary<char, char> symbolsDict = new Dictionary<char,char>()
+		{
+			{'(', ')'},
+			{')', '('},
+			{'<', '>'},
+			{'>', '<'},
+			{'[', ']'},
+			{']', '['},
+		};
+
 		for (int i = lettersFinal.Length - 1; i >= 0; i--)
 		{
-			
-			
-			//				if (lettersFinal[i] == '(')
-			//						numberList.Add(')');
-			//				else if (lettersFinal[i] == ')')
-			//					numberList.Add('(');
-			//				else if (lettersFinal[i] == '<')
-			//					numberList.Add('>');
-			//				else if (lettersFinal[i] == '>')
-			//					numberList.Add('<');
-			//				else 
-			if (char.IsPunctuation(lettersFinal[i]) && i>0 && i < lettersFinal.Length-1 &&
-			    (char.IsPunctuation(lettersFinal[i-1]) || char.IsPunctuation(lettersFinal[i+1])))
+			if (char.IsPunctuation(lettersFinal[i]) && i > 0 && i < lettersFinal.Length - 1 &&
+			    (char.IsPunctuation(lettersFinal[i - 1]) || char.IsPunctuation(lettersFinal[i + 1])))
 			{
-				if (lettersFinal[i] == '(')
-					list.Add(')');
-				else if (lettersFinal[i] == ')')
-					list.Add('(');
-				else if (lettersFinal[i] == '<')
-					list.Add('>');
-				else if (lettersFinal[i] == '>')
-					list.Add('<');
-				else if (lettersFinal[i] == '[')
-					list.Add(']');
-				else if (lettersFinal[i] == ']')
-					list.Add('[');
+				char replacementChar;
+				if (symbolsDict.TryGetValue(lettersFinal[i], out replacementChar))
+					list.Append(replacementChar);
 				else if (lettersFinal[i] != 0xFFFF)
-					list.Add(lettersFinal[i]);
+					list.Append(lettersFinal[i]);
 			}
 			// For cases where english words and arabic are mixed. This allows for using arabic, english and numbers in one sentence.
-			else if(lettersFinal[i] == ' ' && i > 0 && i < lettersFinal.Length-1 &&
-			        (char.IsLower(lettersFinal[i-1]) || char.IsUpper(lettersFinal[i-1]) || char.IsNumber(lettersFinal[i-1])) &&
-			        (char.IsLower(lettersFinal[i+1]) || char.IsUpper(lettersFinal[i+1]) ||char.IsNumber(lettersFinal[i+1])))
-				
+			else if (char.IsWhiteSpace(lettersFinal[i]) && i > 0 && i < lettersFinal.Length - 1 &&
+			         IsEnglishLetterOrNumber(lettersFinal[i - 1]) &&
+			         IsEnglishLetterOrNumber(lettersFinal[i + 1]))
 			{
-				numberList.Add(lettersFinal[i]);
+				numberList.Append(lettersFinal[i]);
 			}
-			
-			else if (char.IsNumber(lettersFinal[i]) || char.IsLower(lettersFinal[i]) ||
-			         char.IsUpper(lettersFinal[i]) || char.IsSymbol(lettersFinal[i]) ||
-			         char.IsPunctuation(lettersFinal[i]))// || lettersFinal[i] == '^') //)
+
+			else if (IsEnglishLetterOrNumber(lettersFinal[i]) || char.IsSymbol(lettersFinal[i]) ||
+			         char.IsPunctuation(lettersFinal[i]))
 			{
-				
-				if (lettersFinal[i] == '(')
-					numberList.Add(')');
-				else if (lettersFinal[i] == ')')
-					numberList.Add('(');
-				else if (lettersFinal[i] == '<')
-					numberList.Add('>');
-				else if (lettersFinal[i] == '>')
-					numberList.Add('<');
-				else if (lettersFinal[i] == '[')
-					list.Add(']');
-				else if (lettersFinal[i] == ']')
-					list.Add('[');
+				char replacementChar;
+				if (symbolsDict.TryGetValue(lettersFinal[i], out replacementChar))
+					numberList.Append(replacementChar);
 				else
-					numberList.Add(lettersFinal[i]);
+					numberList.Append(lettersFinal[i]);
 			}
-			else if( (lettersFinal[i] >= (char)0xD800 && lettersFinal[i] <= (char)0xDBFF) ||
-			        (lettersFinal[i] >= (char)0xDC00 && lettersFinal[i] <= (char)0xDFFF))
+			else if ((lettersFinal[i] >= (char) 0xD800 && lettersFinal[i] <= (char) 0xDBFF) ||
+			         (lettersFinal[i] >= (char) 0xDC00 && lettersFinal[i] <= (char) 0xDFFF))
 			{
-				numberList.Add(lettersFinal[i]);
+				numberList.Append(lettersFinal[i]);
 			}
 			else
 			{
-				if (numberList.Count > 0)
-				{
-					for (int j = 0; j < numberList.Count; j++)
-						list.Add(numberList[numberList.Count - 1 - j]);
-					numberList.Clear();
-				}
-				if (lettersFinal[i] != 0xFFFF)
-					list.Add(lettersFinal[i]);
+				//appends the numberlist to whatever is inside list but in reversed order
+				for (int j = numberList.Length - 1; j >= 0; j--)
+					list.Append(numberList[j]);
+				numberList.Length = 0;
+				numberList.Capacity = 0;
 				
+				if (lettersFinal[i] != 0xFFFF)
+					list.Append(lettersFinal[i]);
 			}
 		}
-		if (numberList.Count > 0)
-		{
-			for (int j = 0; j < numberList.Count; j++)
-				list.Add(numberList[numberList.Count - 1 - j]);
-			numberList.Clear();
-		}
+			//appends the numberlist to whatever is inside list but in reversed order
+			for (int j = numberList.Length - 1; j >= 0; j--)
+				list.Append(numberList[j]);
+			numberList.Length = 0;
+			numberList.Capacity = 0;
 		
-		// Moving letters from a list to an array.
-		lettersFinal = new char[list.Count];
-		for (int i = 0; i < lettersFinal.Length; i++)
-			lettersFinal[i] = list[i];
-		
-		
-		str = new string(lettersFinal);
-		return str;
+		return list.ToString();
 	}
+
+	private static readonly HashSet<char> persianCharacters = new HashSet<char>()
+	{
+		(char)0xFB56 , (char)0xFB7A , (char)0xFB8A ,(char)0xFB92 ,(char)0xFB8E
+	};
 	
 	/// <summary>
 	/// English letters, numbers and punctuation characters are ignored. This checks if the ch is an ignored character.
@@ -534,34 +506,18 @@ internal class ArabicFixerTool
 	internal static bool IsIgnoredCharacter(char ch)
 	{
 		bool isPunctuation = char.IsPunctuation(ch);
-		bool isNumber = char.IsNumber(ch);
-		bool isLower = char.IsLower(ch);
-		bool isUpper = char.IsUpper(ch);
+		bool isEnglishLetterOrNumber = IsEnglishLetterOrNumber(ch);
 		bool isSymbol = char.IsSymbol(ch);
-		bool isPersianCharacter = ch == (char)0xFB56 || ch == (char)0xFB7A || ch == (char)0xFB8A || ch == (char)0xFB92 || ch == (char)0xFB8E;
-        bool isPresentationFormB = (ch <= (char)0xFEFF && ch >= (char)0xFE70);
-        bool isAcceptableCharacter = isPresentationFormB || isPersianCharacter || ch == (char)0xFBFC;
+		bool isPersianCharacter = persianCharacters.Contains(ch);
+		bool isPresentationFormB = (ch <= (char) 0xFEFF && ch >= (char) 0xFE70);
+		bool isAcceptableCharacter = isPresentationFormB || isPersianCharacter || ch == (char) 0xFBFC;
 
 
-
-        return isPunctuation ||
-            isNumber ||
-                isLower ||
-                isUpper ||
-                isSymbol ||
-                !isAcceptableCharacter ||
-                ch == 'a' || ch == '>' || ch == '<' || ch == (char)0x061B;
-		
-		//            return char.IsPunctuation(ch) || char.IsNumber(ch) || ch == 'a' || ch == '>' || ch == '<' ||
-		//                    char.IsLower(ch) || char.IsUpper(ch) || ch == (char)0x061B || char.IsSymbol(ch)
-		//					|| !(ch <= (char)0xFEFF && ch >= (char)0xFE70) // Presentation Form B
-		//					|| ch == (char)0xFB56 || ch == (char)0xFB7A || ch == (char)0xFB8A || ch == (char)0xFB92; // Persian Characters
-		
-		//					PersianPe = 0xFB56,
-		//		PersianChe = 0xFB7A,
-		//		PersianZe = 0xFB8A,
-		//		PersianGaf = 0xFB92
-		//lettersOrigin[i] <= (char)0xFEFF && lettersOrigin[i] >= (char)0xFE70
+		return isPunctuation ||
+		       isEnglishLetterOrNumber ||
+		       isSymbol ||
+		       !isAcceptableCharacter ||
+		       ch == (char) 0x061B; //this character -> ؛
 	}
 	
 	/// <summary>
@@ -574,7 +530,7 @@ internal class ArabicFixerTool
 	{
 
 		bool lettersThatCannotBeBeforeALeadingLetter = index == 0 
-			|| letters[index - 1] == ' ' 
+				|| letters[index - 1] == ' ' 
 				|| letters[index - 1] == '*' // ??? Remove?
 				|| letters[index - 1] == 'A' // ??? Remove?
 				|| char.IsPunctuation(letters[index - 1])
@@ -594,8 +550,8 @@ internal class ArabicFixerTool
 				|| letters[index - 1] == (int)IsolatedArabicLetters.WawHamza;
 
 		bool lettersThatCannotBeALeadingLetter = letters[index] != ' ' 
-			&& letters[index] != (int)IsolatedArabicLetters.Dal
-			&& letters[index] != (int)IsolatedArabicLetters.Thal
+				&& letters[index] != (int)IsolatedArabicLetters.Dal
+				&& letters[index] != (int)IsolatedArabicLetters.Thal
 				&& letters[index] != (int)IsolatedArabicLetters.Ra2 
 				&& letters[index] != (int)IsolatedArabicLetters.Zeen 
 				&& letters[index] != (int)IsolatedArabicLetters.PersianZe
@@ -608,7 +564,7 @@ internal class ArabicFixerTool
 				&& letters[index] != (int)IsolatedArabicLetters.Hamza;
 
 		bool lettersThatCannotBeAfterLeadingLetter = index < letters.Length - 1 
-			&& letters[index + 1] != ' '
+				&& letters[index + 1] != ' '
 				&& !char.IsPunctuation(letters[index + 1] )
 				&& !char.IsNumber(letters[index + 1])
 				&& !char.IsSymbol(letters[index + 1])
@@ -642,8 +598,8 @@ internal class ArabicFixerTool
 		{
 			return true;
 		}
-		else
-			return false;
+		
+		return false;
 	}
 	
 	/// <summary>
