@@ -558,7 +558,8 @@ internal class ArabicFixerTool
 		(char) IsolatedArabicLetters.Waw,
 		(char) IsolatedArabicLetters.Hamza, 
 	};
-	
+
+
 	/// <summary>
 	/// Checks if the letter at index value is a leading character in Arabic or not.
 	/// </summary>
@@ -594,74 +595,16 @@ internal class ArabicFixerTool
 	/// <returns>True if the character at index is a finishing character, else, returns false</returns>
 	internal static bool IsFinishingLetter(char[] letters, int index)
 	{
-		bool indexZero = index != 0;
-		bool lettersThatCannotBeBeforeAFinishingLetter = (index == 0) ? false : 
-				letters[index - 1] != ' '
-//				&& char.IsDigit(letters[index-1])
-//				&& char.IsLower(letters[index-1])
-//				&& char.IsUpper(letters[index-1])
-//				&& char.IsNumber(letters[index-1])
-//				&& char.IsWhiteSpace(letters[index-1])
-//				&& char.IsPunctuation(letters[index-1])
-//				&& char.IsSymbol(letters[index-1])
+		bool lettersThatCannotBeBeforeAFinishingLetter = (index != 0) &&
+		                                                 (!lettersThatCannotBeALeadingLetter.Contains(letters[index - 1]) &&
+		                                                  !char.IsPunctuation(letters[index - 1]) &&
+		                                                  letters[index - 1] != '>' &&
+		                                                  letters[index - 1] != '<');
 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Dal 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Thal
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Ra2 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Zeen 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.PersianZe
-				//&& letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksora 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Waw
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Alef 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.AlefMad
-				&& letters[index - 1] != (int)IsolatedArabicLetters.AlefHamza 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksoor
-				&& letters[index - 1] != (int)IsolatedArabicLetters.WawHamza 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Hamza
+		bool lettersThatCannotBeFinishingLetters = letters[index] != ' ' &&
+		                                           letters[index] != (int) IsolatedArabicLetters.Hamza;
 
-
-
-				&& !char.IsPunctuation(letters[index - 1]) 
-				&& letters[index - 1] != '>' 
-				&& letters[index - 1] != '<';
-				
-
-		bool lettersThatCannotBeFinishingLetters = letters[index] != ' ' && letters[index] != (int)IsolatedArabicLetters.Hamza;
-
-	
-
-
-		if(lettersThatCannotBeBeforeAFinishingLetter && lettersThatCannotBeFinishingLetters)
-
-//		if (index != 0 && letters[index - 1] != ' ' && letters[index - 1] != '*' && letters[index - 1] != 'A'
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Dal && letters[index - 1] != (int)IsolatedArabicLetters.Thal
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Ra2 
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Zeen && letters[index - 1] != (int)IsolatedArabicLetters.PersianZe
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksora && letters[index - 1] != (int)IsolatedArabicLetters.Waw
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Alef && letters[index - 1] != (int)IsolatedArabicLetters.AlefMad
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.AlefHamza && letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksoor
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.WawHamza && letters[index - 1] != (int)IsolatedArabicLetters.Hamza 
-//		    && !char.IsPunctuation(letters[index - 1]) && letters[index - 1] != '>' && letters[index - 1] != '<' 
-//		    && letters[index] != ' ' && index < letters.Length
-//		    && letters[index] != (int)IsolatedArabicLetters.Hamza)
-		{
-			//try
-			//{
-			//    if (char.IsPunctuation(letters[index + 1]))
-			//        return true;
-			//    else
-			//        return false;
-			//}
-			//catch (Exception e)
-			//{
-			//    return false;
-			//}
-			
-			return true;
-		}
-		//return true;
-		else
-			return false;
+		return lettersThatCannotBeBeforeAFinishingLetter && lettersThatCannotBeFinishingLetters;
 	}
 	
 	/// <summary>
