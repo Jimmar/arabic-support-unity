@@ -523,40 +523,27 @@ internal class ArabicFixerTool
 	//TODO check why there is a * and an A here
 	private static readonly HashSet<char> lettersThatCannotBeBeforeALeadingLetter = new HashSet<char>()
 	{
-		' ',
 		'*', // ??? Remove?
 		'A', // ??? Remove?
 		'>',
 		'<',
-		(char) IsolatedArabicLetters.Alef,
-		(char) IsolatedArabicLetters.Dal,
-		(char) IsolatedArabicLetters.Thal,
-		(char) IsolatedArabicLetters.Ra2,
-		(char) IsolatedArabicLetters.Zeen,
-		(char) IsolatedArabicLetters.PersianZe,
-		//(char)IsolatedArabicLetters.AlefMaksora , // ??? why ?
-		(char) IsolatedArabicLetters.Waw,
-		(char) IsolatedArabicLetters.AlefMad,
-		(char) IsolatedArabicLetters.AlefHamza,
-		(char) IsolatedArabicLetters.AlefMaksoor,
-		(char) IsolatedArabicLetters.WawHamza,
 	};
 
-	private static readonly HashSet<char> lettersThatCannotBeALeadingLetter = new HashSet<char>()
+	//combined set
+	private static readonly HashSet<char> lettersThatCannotBeBeforeOrAALeadingLetter = new HashSet<char>()
 	{
 		' ',
+		(char) IsolatedArabicLetters.Alef,
 		(char) IsolatedArabicLetters.Dal,
 		(char) IsolatedArabicLetters.Thal,
 		(char) IsolatedArabicLetters.Ra2,
 		(char) IsolatedArabicLetters.Zeen,
 		(char) IsolatedArabicLetters.PersianZe,
-		(char) IsolatedArabicLetters.Alef,
+		(char) IsolatedArabicLetters.Waw,
+		(char) IsolatedArabicLetters.AlefMad,
 		(char) IsolatedArabicLetters.AlefHamza,
 		(char) IsolatedArabicLetters.AlefMaksoor,
-		(char) IsolatedArabicLetters.AlefMad,
 		(char) IsolatedArabicLetters.WawHamza,
-		(char) IsolatedArabicLetters.Waw,
-		(char) IsolatedArabicLetters.Hamza, 
 	};
 
 
@@ -571,10 +558,12 @@ internal class ArabicFixerTool
 
 		bool containsLettersThatCannotBeBeforeALeadingLetter = index == 0
 			   || char.IsPunctuation(letters[index - 1])
-			   || lettersThatCannotBeBeforeALeadingLetter.Contains(
-				   letters[index - 1]);
+			   || lettersThatCannotBeBeforeOrAALeadingLetter.Contains(letters[index - 1])
+			   || lettersThatCannotBeBeforeALeadingLetter.Contains(letters[index - 1]);
 
-		bool containsLettersThatCannotBeALeadingLetter = !lettersThatCannotBeALeadingLetter.Contains(letters[index]);
+		bool containsLettersThatCannotBeALeadingLetter =
+			!lettersThatCannotBeBeforeOrAALeadingLetter.Contains(letters[index]) &&
+			letters[index] != (char) IsolatedArabicLetters.Hamza;
 
 		bool lettersThatCannotBeAfterLeadingLetter = index < letters.Length - 1 
 				&& letters[index + 1] != ' '
@@ -596,7 +585,8 @@ internal class ArabicFixerTool
 	internal static bool IsFinishingLetter(char[] letters, int index)
 	{
 		bool lettersThatCannotBeBeforeAFinishingLetter = (index != 0) &&
-		                                                 (!lettersThatCannotBeALeadingLetter.Contains(letters[index - 1]) &&
+		                                                 (!lettersThatCannotBeBeforeOrAALeadingLetter.Contains(letters[index - 1]) &&
+		                                                  letters[index - 1] != (char) IsolatedArabicLetters.Hamza &&
 		                                                  !char.IsPunctuation(letters[index - 1]) &&
 		                                                  letters[index - 1] != '>' &&
 		                                                  letters[index - 1] != '<');
@@ -615,87 +605,29 @@ internal class ArabicFixerTool
 	/// <returns>True if the character at index is a middle character, else, returns false</returns>
 	internal static bool IsMiddleLetter(char[] letters, int index)
 	{
-		bool lettersThatCannotBeMiddleLetters = (index == 0) ? false : 
-			letters[index] != (int)IsolatedArabicLetters.Alef 
-				&& letters[index] != (int)IsolatedArabicLetters.Dal
-				&& letters[index] != (int)IsolatedArabicLetters.Thal 
-				&& letters[index] != (int)IsolatedArabicLetters.Ra2
-				&& letters[index] != (int)IsolatedArabicLetters.Zeen 
-				&& letters[index] != (int)IsolatedArabicLetters.PersianZe 
-				//&& letters[index] != (int)IsolatedArabicLetters.AlefMaksora
-				&& letters[index] != (int)IsolatedArabicLetters.Waw 
-				&& letters[index] != (int)IsolatedArabicLetters.AlefMad
-				&& letters[index] != (int)IsolatedArabicLetters.AlefHamza 
-				&& letters[index] != (int)IsolatedArabicLetters.AlefMaksoor
-				&& letters[index] != (int)IsolatedArabicLetters.WawHamza 
-				&& letters[index] != (int)IsolatedArabicLetters.Hamza;
+		bool lettersThatCannotBeMiddleLetters = (index != 0) &&
+		                                        (!lettersThatCannotBeBeforeOrAALeadingLetter.Contains(letters[index]) &&
+		                                         letters[index] != (char) IsolatedArabicLetters.Hamza);
 
-		bool lettersThatCannotBeBeforeMiddleCharacters = (index == 0) ? false :
-				letters[index - 1] != (int)IsolatedArabicLetters.Alef 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Dal
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Thal 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Ra2
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Zeen 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.PersianZe 
-				//&& letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksora
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Waw 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.AlefMad
-				&& letters[index - 1] != (int)IsolatedArabicLetters.AlefHamza 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksoor
-				&& letters[index - 1] != (int)IsolatedArabicLetters.WawHamza 
-				&& letters[index - 1] != (int)IsolatedArabicLetters.Hamza
-				&& !char.IsPunctuation(letters[index - 1])
-				&& letters[index - 1] != '>' 
-				&& letters[index - 1] != '<' 
-				&& letters[index - 1] != ' ' 
-				&& letters[index - 1] != '*';
+		bool lettersThatCannotBeBeforeMiddleCharacters = (index != 0) &&
+		                                                 (!lettersThatCannotBeBeforeOrAALeadingLetter.Contains( letters[index - 1]) &&
+		                                                  letters[index] != (char) IsolatedArabicLetters.Hamza &&
+		                                                  !char.IsPunctuation(letters[index - 1]) &&
+		                                                  !lettersThatCannotBeBeforeALeadingLetter.Contains(letters[index - 1]));
 
-		bool lettersThatCannotBeAfterMiddleCharacters = (index >= letters.Length - 1) ? false :
-			letters[index + 1] != ' ' 
-				&& letters[index + 1] != '\r' 
-				&& letters[index + 1] != (int)IsolatedArabicLetters.Hamza
-				&& !char.IsNumber(letters[index + 1])
-				&& !char.IsSymbol(letters[index + 1])
-				&& !char.IsPunctuation(letters[index + 1]);
-		if(lettersThatCannotBeAfterMiddleCharacters && lettersThatCannotBeBeforeMiddleCharacters && lettersThatCannotBeMiddleLetters)
+		bool lettersThatCannotBeAfterMiddleCharacters = (index < letters.Length - 1) &&
+															(letters[index + 1] != ' ' &&
+															 letters[index + 1] != '\r' &&
+															 letters[index + 1] != (int) IsolatedArabicLetters.Hamza &&
+															 !char.IsNumber(letters[index + 1]) &&
+															 !char.IsSymbol(letters[index + 1]) &&
+															 !char.IsPunctuation(letters[index + 1]));
 
-//		if (index != 0 && letters[index] != ' '
-//		    && letters[index] != (int)IsolatedArabicLetters.Alef && letters[index] != (int)IsolatedArabicLetters.Dal
-//		    && letters[index] != (int)IsolatedArabicLetters.Thal && letters[index] != (int)IsolatedArabicLetters.Ra2
-//		    && letters[index] != (int)IsolatedArabicLetters.Zeen && letters[index] != (int)IsolatedArabicLetters.PersianZe 
-//		    && letters[index] != (int)IsolatedArabicLetters.AlefMaksora
-//		    && letters[index] != (int)IsolatedArabicLetters.Waw && letters[index] != (int)IsolatedArabicLetters.AlefMad
-//		    && letters[index] != (int)IsolatedArabicLetters.AlefHamza && letters[index] != (int)IsolatedArabicLetters.AlefMaksoor
-//		    && letters[index] != (int)IsolatedArabicLetters.WawHamza && letters[index] != (int)IsolatedArabicLetters.Hamza
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Alef && letters[index - 1] != (int)IsolatedArabicLetters.Dal
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Thal && letters[index - 1] != (int)IsolatedArabicLetters.Ra2
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Zeen && letters[index - 1] != (int)IsolatedArabicLetters.PersianZe 
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksora
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.Waw && letters[index - 1] != (int)IsolatedArabicLetters.AlefMad
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.AlefHamza && letters[index - 1] != (int)IsolatedArabicLetters.AlefMaksoor
-//		    && letters[index - 1] != (int)IsolatedArabicLetters.WawHamza && letters[index - 1] != (int)IsolatedArabicLetters.Hamza 
-//		    && letters[index - 1] != '>' && letters[index - 1] != '<' 
-//		    && letters[index - 1] != ' ' && letters[index - 1] != '*' && !char.IsPunctuation(letters[index - 1])
-//		    && index < letters.Length - 1 && letters[index + 1] != ' ' && letters[index + 1] != '\r' && letters[index + 1] != 'A' 
-//		    && letters[index + 1] != '>' && letters[index + 1] != '>' && letters[index + 1] != (int)IsolatedArabicLetters.Hamza
-//		    )
+		if (lettersThatCannotBeAfterMiddleCharacters && lettersThatCannotBeBeforeMiddleCharacters &&
+		    lettersThatCannotBeMiddleLetters)
 		{
-			try
-			{
-				if (char.IsPunctuation(letters[index + 1]))
-					return false;
-				else
-					return true;
-			}
-			catch
-			{
-				return false;
-			}
-			//return true;
+			return index >= letters.Length || !char.IsPunctuation(letters[index + 1]);
 		}
-		else
-			return false;
+		return false;
 	}
-	
-	
 }
