@@ -26,3 +26,7 @@ ExportedObj/
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
+
+.idea/
+
+Assets/Plugins/Editor/JetBrains/Unity3DRider\.cs
